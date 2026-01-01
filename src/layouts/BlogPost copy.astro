@@ -1,0 +1,207 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from '../components/FormattedDate.astro';
+import BaseLayout from './BaseLayout.astro';
+
+type Props = CollectionEntry<'blog'>['data'] & { id?: string };
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { id = Astro.params.slug } = Astro.props; 
+---
+
+<BaseLayout title={title} description={description}>
+    <div class="back-link-container">
+        <a href="/blog" class="back-button" aria-label="Back to Blog">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="28" height="28">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
+            </svg>
+        </a>
+    </div>
+    <div class="up-link-container">
+        <button id="to-top-button" class="up-button" aria-label="Back to Top">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="28" height="28">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18"></path>
+            </svg>
+        </button>
+    </div>
+    <style>
+        main {
+            width: calc(100% - 2em);
+            max-width: 100%;
+            margin: 0;
+        }
+        .hero-image {
+            width: 100%;
+        }
+        .hero-image img {
+            display: block;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: var(--box-shadow);
+        }
+        .prose {
+            width: 720px;
+            max-width: calc(100% - 2em);
+            margin: auto;
+            padding: 1em;
+            color: rgb(var(--gray-dark));
+        }
+        .title {
+            margin-bottom: 1em;
+            padding: 1em 0;
+            text-align: center;
+            line-height: 1;
+        }
+        .title h1 {
+            margin: 0 0 0.5em 0;
+        }
+        .date {
+            margin-bottom: 0.5em;
+            color: rgb(var(--gray));
+        }
+        .last-updated-on {
+            font-style: italic;
+        }
+    </style>
+    <main>
+        <article>
+            <div class="hero-image">
+                {
+                    heroImage && (
+                        <Image 
+                            width={1020} 
+                            height={510} 
+                            src={heroImage} 
+                            alt="" 
+                            transition:name={`hero-${id}`} 
+                        />
+                    )
+                }
+            </div>
+            <div class="prose">
+                <div class="title">
+                    <div class="date">
+                        <FormattedDate date={pubDate} />
+                        {
+                            updatedDate && (
+                                <div class="last-updated-on">
+                                    Last updated on <FormattedDate date={updatedDate} />
+                                </div>
+                            )
+                        }
+                    </div>
+                    <h1>{title}</h1>
+                    <hr />
+                </div>
+                <slot />
+            </div>
+        </article>
+    </main>
+</BaseLayout>
+
+<script>
+    const setupEffects = () => {
+        // --- 1. 处理返回按钮：禁用图片回弹动画 ---
+        const backButton = document.querySelector('.back-button');
+        const heroImg = document.querySelector('.hero-image img') as HTMLElement;
+
+        if (backButton && heroImg) {
+            backButton.addEventListener('click', () => {
+                // 当点击返回时，移除 view-transition-name
+                // 这样浏览器找不到匹配的 ID，就会执行默认的淡出效果
+                heroImg.style.viewTransitionName = 'none';
+            });
+        }
+
+        // --- 2. 处理原有滚动效果逻辑 ---
+        const toTopBtn = document.getElementById('to-top-button');
+        // 注意：你原先脚本中使用了 wrappers，请确保页面中有 .sticky-btn-wrapper 类名，
+        // 或者直接控制 container。这里我为你保留逻辑。
+        const containers = document.querySelectorAll('.back-link-container, .up-link-container');
+
+        const toggleButtons = () => {
+            if (window.scrollY > 100 ) {
+                containers.forEach(el => el.classList.add('show'));
+            } else {
+                containers.forEach(el => el.classList.remove('show'));
+            }
+        };
+
+        toTopBtn?.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        window.addEventListener('scroll', toggleButtons);
+        toggleButtons();
+    };
+
+    // 适配 Astro 视图过渡：每次页面加载或恢复时运行
+    document.addEventListener('astro:page-load', setupEffects);
+</script>
+
+<style>
+    /* 你的原有样式保持不变 */
+    .back-link-container {
+        position: fixed;
+        left: 50%; 
+        margin-left: calc(-520px - 52px - 2rem); 
+        top: 14rem;
+        z-index: 90;
+        opacity: 0; /* 配合 show 类名实现显隐 */
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+
+    .up-link-container {
+        position: fixed;
+        left: 50%;
+        margin-left: calc(-520px - 52px - 2rem); 
+        top: 9rem;
+        z-index: 90;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+
+    /* 显隐状态控制 */
+    .back-link-container.show,
+    .up-link-container.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* 其余 back-button, up-button, media queries 等样式... */
+    .back-button, .up-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        color: rgb(226, 244, 243);
+        background-color: rgb(152, 145, 145);
+        border: 1px solid rgba(150, 150, 150, 0.5);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    
+    .back-button:hover, .up-button:hover {
+        color: rgb(143, 249, 243);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 移动端适配代码建议保留 ... */
+    @media (max-width: 1200px) {
+        .back-link-container, .up-link-container { left: 1rem; margin-left: 0; }
+    }
+
+    main { width: calc(100% - 2em); max-width: 1020px; margin: 0 auto; padding: 1em 0; }
+    .hero-image { width: 100%; }
+    .hero-image img { display: block; margin: 0 auto; border-radius: 12px; }
+    .prose { width: 720px; max-width: calc(100% - 2em); margin: auto; padding: 1em; }
+</style>

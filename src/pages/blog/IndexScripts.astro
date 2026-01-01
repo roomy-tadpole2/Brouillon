@@ -1,0 +1,237 @@
+<script>
+    /**
+     * Blog Index Page Scripts with Smooth Grid Animation
+     * 使用 FLIP 技术实现平滑的网格重排动画
+     */
+
+    // ==================== 滚动位置管理 ====================
+    
+    const saveScrollPosition = (): void => {
+        const currentPath = window.location.pathname;
+        if (currentPath === '/blog' || currentPath === '/blog/') {
+            sessionStorage.setItem('blog-scroll-pos', window.scrollY.toString());
+        }
+    };
+
+    const handleScrollBehavior = (): void => {
+        const path = window.location.pathname;
+        const savedScrollPos = sessionStorage.getItem('blog-scroll-pos');
+
+        if (path.includes('/blog/') && path !== '/blog' && path !== '/blog/') {
+            window.scrollTo({
+                top: 0,
+                behavior: 'instant' as ScrollBehavior
+            });
+        } 
+        else if ((path === '/blog' || path === '/blog/') && savedScrollPos) {
+            requestAnimationFrame(() => {
+                window.scrollTo({
+                    top: parseInt(savedScrollPos, 10),
+                    behavior: 'instant' as ScrollBehavior
+                });
+            });
+        }
+    };
+
+    // ==================== 平滑搜索动画 ====================
+
+    const initSearch = (): void => {
+        const searchInput = document.getElementById('search-input') as HTMLInputElement;
+        const postCards = document.querySelectorAll('.post-card') as NodeListOf<HTMLElement>;
+        const postsList = document.getElementById('posts-list') as HTMLElement;
+
+        if (!searchInput || !postsList) {
+            console.warn('Search elements not found');
+            return;
+        }
+
+        // 防抖函数
+        let debounceTimer: number;
+        const debounce = (callback: Function, delay: number = 150) => {
+            return (...args: any[]) => {
+                clearTimeout(debounceTimer);
+                debounceTimer = window.setTimeout(() => callback(...args), delay);
+            };
+        };
+
+        /**
+         * FLIP 动画技术
+         * First: 记录初始位置
+         * Last: 改变 DOM（添加/移除 hidden 类）
+         * Invert: 计算位置差
+         * Play: 播放动画
+         */
+        const animateGridReflow = (cardsToShow: Set<HTMLElement>, cardsToHide: Set<HTMLElement>): void => {
+            // === FIRST: 记录所有卡片的初始位置 ===
+            const firstPositions = new Map<HTMLElement, DOMRect>();
+            postCards.forEach(card => {
+                firstPositions.set(card, card.getBoundingClientRect());
+            });
+
+            // === LAST: 改变 DOM 状态 ===
+            // 先淡出要隐藏的卡片
+            cardsToHide.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9)';
+            });
+
+            // 等待淡出动画完成后再隐藏
+            setTimeout(() => {
+                cardsToHide.forEach(card => {
+                    card.classList.add('hidden');
+                    card.setAttribute('aria-hidden', 'true');
+                });
+
+                cardsToShow.forEach(card => {
+                    card.classList.remove('hidden');
+                    card.setAttribute('aria-hidden', 'false');
+                });
+
+                // === INVERT & PLAY: 计算并播放移动动画 ===
+                requestAnimationFrame(() => {
+                    const visibleCards = Array.from(postCards).filter(card => !card.classList.contains('hidden'));
+                    
+                    visibleCards.forEach((card, index) => {
+                        const firstPos = firstPositions.get(card);
+                        const lastPos = card.getBoundingClientRect();
+
+                        if (firstPos) {
+                            const deltaX = firstPos.left - lastPos.left;
+                            const deltaY = firstPos.top - lastPos.top;
+
+                            // 应用反向变换（Invert）
+                            card.style.transition = 'none';
+                            card.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.9)`;
+                            card.style.opacity = '0';
+
+                            // 强制重排
+                            card.offsetHeight;
+
+                            // 播放动画（Play）
+                            card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                            card.style.transitionDelay = `${index * 0.03}s`;
+                            card.style.transform = 'translate(0, 0) scale(1)';
+                            card.style.opacity = '1';
+                        }
+                    });
+
+                    // 清理过渡样式
+                    setTimeout(() => {
+                        visibleCards.forEach(card => {
+                            card.style.transition = '';
+                            card.style.transitionDelay = '';
+                            card.style.transform = '';
+                        });
+                    }, 400 + visibleCards.length * 30);
+                });
+            }, 200);
+        };
+
+        // 搜索处理函数
+        const handleSearch = (searchTerm: string): void => {
+            const term = searchTerm.toLowerCase().trim();
+            const cardsToShow = new Set<HTMLElement>();
+            const cardsToHide = new Set<HTMLElement>();
+            let visibleCount = 0;
+
+            postCards.forEach(card => {
+                const title = card.getAttribute('data-title') || '';
+                const isCurrentlyHidden = card.classList.contains('hidden');
+                
+                if (term === '' || title.includes(term)) {
+                    if (isCurrentlyHidden) {
+                        cardsToShow.add(card);
+                    }
+                    visibleCount++;
+                } else {
+                    if (!isCurrentlyHidden) {
+                        cardsToHide.add(card);
+                    }
+                }
+            });
+
+            // 执行平滑动画
+            if (cardsToShow.size > 0 || cardsToHide.size > 0) {
+                animateGridReflow(cardsToShow, cardsToHide);
+            }
+
+            // 显示搜索结果提示
+            console.log(`显示 ${visibleCount} 个结果，共 ${postCards.length} 篇文章`);
+            showNoResultsMessage(visibleCount === 0);
+        };
+
+        // 显示/隐藏"未找到结果"提示
+        const showNoResultsMessage = (show: boolean): void => {
+            let messageEl = document.getElementById('no-results-message');
+            
+            if (show) {
+                if (!messageEl) {
+                    messageEl = document.createElement('div');
+                    messageEl.id = 'no-results-message';
+                    messageEl.textContent = 'No results found 😢';
+                    messageEl.style.cssText = `
+                        text-align: center;
+                        padding: 3rem 1rem;
+                        color: #6b7280;
+                        font-size: 1.1rem;
+                        grid-column: 1 / -1;
+                        opacity: 0;
+                        animation: fadeIn 0.4s ease forwards;
+                        animation-delay: 0.2s;
+                    `;
+                    postsList.appendChild(messageEl);
+                }
+            } else {
+                if (messageEl) {
+                    messageEl.style.opacity = '0';
+                    setTimeout(() => messageEl?.remove(), 300);
+                }
+            }
+        };
+
+        // 绑定事件监听器
+        searchInput.addEventListener('input', debounce((e: Event) => {
+            const target = e.target as HTMLInputElement;
+            handleSearch(target.value);
+        }));
+
+        // ESC 键清空搜索
+        searchInput.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                handleSearch('');
+                searchInput.blur();
+            }
+        });
+
+        // 初始化
+        searchInput.value = '';
+    };
+
+    // ==================== 初始化 ====================
+
+    const initializePage = (): void => {
+        handleScrollBehavior();
+        initSearch();
+    };
+
+    // 事件监听
+    document.addEventListener('astro:before-preparation', saveScrollPosition);
+    document.addEventListener('astro:after-swap', initializePage);
+    window.addEventListener('pageshow', initializePage);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+        initializePage();
+    }
+
+    // 导出工具函数
+    if (typeof window !== 'undefined') {
+        (window as any).blogIndexUtils = {
+            saveScrollPosition,
+            handleScrollBehavior,
+            initSearch
+        };
+    }
+</script>

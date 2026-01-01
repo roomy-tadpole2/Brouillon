@@ -1,86 +1,66 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import Header from '../components/Header.astro';
+import BaseLayout from './BaseLayout.astro';
+// 导入抽离的组件
+import BlogPostScript from '../components/BlogPostScript.astro';
+import BlogPostStyle from '../components/BlogPostStyle.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
-
+type Props = CollectionEntry<'blog'>['data'] & { id?: string };
 const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { id = Astro.params.slug } = Astro.props; 
 ---
 
-<html lang="en">
-	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
-	</head>
+<BaseLayout title={title} description={description}>
+    <BlogPostStyle />
 
-	<body>
-		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
-					</div>
-					<slot />
-				</div>
-			</article>
-		</main>
-		<Footer />
-	</body>
-</html>
+    <div class="back-link-container">
+        <a href="/blog" class="back-button" aria-label="Back to Blog">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="28" height="28">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
+            </svg>
+        </a>
+    </div>
+
+    <div class="up-link-container">
+        <button id="to-top-button" class="up-button" aria-label="Back to Top">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="28" height="28">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18"></path>
+            </svg>
+        </button>
+    </div>
+
+    <main>
+        <article>
+            <div class="hero-image">
+                {heroImage && (
+                    <Image 
+                        width={1020} 
+                        height={510} 
+                        src={heroImage} 
+                        alt="" 
+                        transition:name={`hero-${id}`} 
+                    />
+                )}
+            </div>
+            <div class="prose">
+                <div class="title">
+                    <div class="date">
+                        <FormattedDate date={pubDate} />
+                        {updatedDate && (
+                            <div class="last-updated-on">
+                                Last updated on <FormattedDate date={updatedDate} />
+                            </div>
+                        )}
+                    </div>
+                    <h1>{title}</h1>
+                    <hr />
+                </div>
+                <slot />
+            </div>
+        </article>
+    </main>
+
+    <BlogPostScript />
+</BaseLayout>

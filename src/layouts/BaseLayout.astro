@@ -1,0 +1,106 @@
+---
+// src/layouts/BaseLayout.astro
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { ClientRouter } from 'astro:transitions'; 
+import stain_colors from './stain_palette.json'; 
+
+const { title, description, transitionSpeed = "0.8s" } = Astro.props;
+---
+
+<html lang="zh">
+  <head>
+    <BaseHead title={title} description={description} />
+    <ClientRouter />
+    
+    <style is:global define:vars={{ transitionSpeed }}>
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: var(--transitionSpeed) !important;
+      }
+
+      /* 背景装饰基础样式 */
+      .bg-decor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .decor-circle {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px); /* 增加模糊度让光晕更柔和 */
+        opacity: 0.42; /* 调低透明度，确保不干扰文字 */
+        transition: all 1.2s ease-in-out;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="bg-decor" id="bg-decor"></div>
+
+    <Header />
+    <slot />
+    <Footer />
+
+    <script define:vars={{ stain_colors }}>
+      const generateDecor = () => {
+        const container = document.getElementById('bg-decor');
+        if (!container) return;
+        
+        // 清空现有光晕（用于页面切换时重新生成）
+        container.innerHTML = '';
+
+        const createCircle = (side) => {
+          const circle = document.createElement('div');
+          circle.classList.add('decor-circle');
+
+          // 1. 随机大小 (150px 到 450px 之间)
+          const size = Math.floor(Math.random() * 260) + 120;
+          
+          // 2. 随机颜色
+          const color = stain_colors.colors[Math.floor(Math.random() * stain_colors.colors.length)];
+          
+          // 3. 随机位置
+          // y 轴在 0-100% 之间
+          const top = Math.floor(Math.random() * 100);
+          // x 轴限制在两侧
+          let left;
+          if (side === 'left') {
+            left = Math.floor(Math.random() * 18) - 4; // 允许稍微超出左边界
+          } else {
+            left = Math.floor(Math.random() * 18) + 80; // 允许稍微超出右边界
+          }
+
+          // 应用样式
+          Object.assign(circle.style, {
+            width: `${size}px`,
+            height: `${size}px`,
+            backgroundColor: color.startsWith('var') ? color : color, // 支持 CSS 变量或 Hex
+            top: `${top}%`,
+            left: `${left}%`
+          });
+
+          container.appendChild(circle);
+        };
+
+        // 每侧随机生成 4-6 个光晕
+        const countLeft = Math.floor(Math.random() * 2) + 3;
+        const countRight = Math.floor(Math.random() * 2) + 3;
+
+        for (let i = 0; i < countLeft; i++) createCircle('left');
+        for (let i = 0; i < countRight; i++) createCircle('right');
+      };
+
+      // 初始化与视图过渡适配
+      generateDecor();
+      document.addEventListener('astro:page-load', generateDecor);
+    </script>
+  </body>
+</html>

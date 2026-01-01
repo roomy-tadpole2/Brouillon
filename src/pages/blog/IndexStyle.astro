@@ -1,0 +1,299 @@
+<style is:global>
+    main {
+        width: 1200px;
+        max-width: calc(100% - 2em);
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    /* ==================== Header Section ==================== */
+    .header-section {
+        text-align: center;
+        margin-bottom: 4rem;
+        /* 确保居中对齐 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .tagline {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 5rem 0 5rem 0;
+        background: linear-gradient(135deg, #e872ff, #fbf30b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.02em;
+    }
+
+    /* ==================== Search Section ==================== */
+    .search-container {
+        position: relative;
+        width: 600px;
+        max-width: 100%;
+        /* 移除 margin: 0 auto，因为父元素已经用 flexbox 居中了 */
+    }
+
+    .search-box {
+        width: 100%;
+        padding: 1rem 3rem 1rem 1.5rem;
+        font-size: 1.2rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 50px;
+        background: #f9fafb;
+        color: #323232;
+        transition: all 0.3s ease;
+        outline: none;
+        font-family: inherit;
+        /* 确保 box-sizing 正确 */
+        box-sizing: border-box;
+    }
+
+    .search-box::placeholder {
+        color: #6b7280;
+        opacity: 0.7;
+    }
+
+    .search-box:focus {
+        border-color: #464646;
+        background: rgb(224, 224, 224);
+        box-shadow: 0 4px 20px rgba(146, 146, 146, 0.368);
+        transform: translateY(-2px);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #79797b;
+        pointer-events: none;
+        transition: color 0.3s ease;
+    }
+
+    .search-box:focus ~ .search-icon {
+        color: #212021;
+    }
+
+    /* ==================== Posts Grid Section ==================== */
+    .posts-section {
+        margin-top: 3rem;
+    }
+
+    #posts-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        position: relative;
+    }
+
+    /* ==================== Post Card ==================== */
+    .post-card {
+        /* 默认状态 */
+        opacity: 1;
+        transform: scale(1);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    /* 隐藏状态：仍在 Grid 中但不可见，等动画完成后通过 JS 设置 display: none */
+    .post-card.hidden {
+        display: none;
+        opacity: 0;
+    }
+
+    /* 淡入动画（用于页面初次加载） */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* 页面加载时的交错动画 */
+    .post-card {
+        animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+    }
+
+    .post-card:nth-child(1) { animation-delay: 0.05s; }
+    .post-card:nth-child(2) { animation-delay: 0.1s; }
+    .post-card:nth-child(3) { animation-delay: 0.15s; }
+    .post-card:nth-child(4) { animation-delay: 0.2s; }
+    .post-card:nth-child(5) { animation-delay: 0.25s; }
+    .post-card:nth-child(6) { animation-delay: 0.3s; }
+    .post-card:nth-child(7) { animation-delay: 0.35s; }
+    .post-card:nth-child(8) { animation-delay: 0.4s; }
+    .post-card:nth-child(9) { animation-delay: 0.45s; }
+    .post-card:nth-child(n+10) { animation-delay: 0.5s; }
+
+    .post-card a {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        height: 100%;
+        transition: transform 0.2s ease;
+    }
+
+    /* ==================== Image Container ==================== */
+    .image-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%; /* 正方形 1:1 比例 */
+        overflow: hidden;
+        border-radius: 20px;
+        background: #f3f4f6;
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .image-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .post-card:hover .image-container {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .post-card:hover .image-container img {
+        transform: scale(1.05);
+    }
+
+    /* ==================== Card Content ==================== */
+    .card-content {
+        padding: 0.5rem 0;
+    }
+
+    .card-title {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        line-height: 1.4;
+        color: #484848;
+        transition: color 0.3s ease, transform 0.3s ease;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .card-date {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #787674;
+        transition: color 0.3s ease;
+    }
+
+    .post-card:hover .card-title {
+        color: #232324;
+        transform: translateY(-2px);
+    }
+
+    .post-card:hover .card-date {
+        color: #4e4d4f;
+    }
+
+    /* ==================== No Results Message ==================== */
+    #no-results-message {
+        animation: fadeIn 0.4s ease forwards;
+    }
+
+    /* ==================== Responsive Design ==================== */
+    @media (max-width: 1024px) {
+        #posts-list {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        main {
+            width: 100%;
+        }
+
+        .tagline {
+            font-size: 2.5rem;
+        }
+
+        .search-container {
+            width: 500px;
+        }
+    }
+
+    @media (max-width: 720px) {
+        main {
+            padding: 1rem 0;
+        }
+
+        .header-section {
+            margin-bottom: 2rem;
+        }
+
+        .tagline {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-container {
+            width: 100%;
+            padding: 0 1rem;
+        }
+
+        .search-box {
+            font-size: 1rem;
+            padding: 0.875rem 2.5rem 0.875rem 1.25rem;
+        }
+
+        .search-icon {
+            width: 18px;
+            height: 18px;
+            right: 1.25rem;
+        }
+
+        #posts-list {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .image-container {
+            border-radius: 16px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+        }
+
+        .card-date {
+            font-size: 0.85rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .tagline {
+            font-size: 1.75rem;
+        }
+
+        .search-box {
+            font-size: 0.95rem;
+            padding: 0.75rem 2.25rem 0.75rem 1rem;
+        }
+
+        .search-icon {
+            width: 16px;
+            height: 16px;
+            right: 1rem;
+        }
+    }
+</style>
