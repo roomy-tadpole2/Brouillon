@@ -1,7 +1,7 @@
 <script>
     /**
-     * Blog Index Page Scripts with Smooth Grid Animation
-     * 使用 FLIP 技术实现平滑的网格重排动画
+     * Blog Index Page Scripts with View Transition Support
+     * 修复视图过渡时圆角丢失的问题
      */
 
     // ==================== 滚动位置管理 ====================
@@ -33,6 +33,35 @@
         }
     };
 
+    // ==================== 修复视图过渡后的圆角 ====================
+    
+    /**
+     * 强制所有卡片保持正确的样式
+     * 在视图过渡后立即执行
+     */
+    const enforceCardStyles = (): void => {
+        const postCards = document.querySelectorAll('.post-card') as NodeListOf<HTMLElement>;
+        const imageContainers = document.querySelectorAll('.image-container') as NodeListOf<HTMLElement>;
+        
+        // 确保所有卡片和图片容器保持正确的样式
+        postCards.forEach(card => {
+            // 移除可能被视图过渡添加的内联样式
+            if (!card.classList.contains('hidden')) {
+                card.style.transform = '';
+                card.style.opacity = '';
+                card.style.transition = '';
+            }
+        });
+
+        imageContainers.forEach(container => {
+            // 强制重新应用圆角和overflow
+            container.style.borderRadius = '20px';
+            container.style.overflow = 'hidden';
+            // 触发重绘
+            container.offsetHeight;
+        });
+    };
+
     // ==================== 平滑搜索动画 ====================
 
     const initSearch = (): void => {
@@ -55,11 +84,7 @@
         };
 
         /**
-         * FLIP 动画技术
-         * First: 记录初始位置
-         * Last: 改变 DOM（添加/移除 hidden 类）
-         * Invert: 计算位置差
-         * Play: 播放动画
+         * FLIP 动画技术 - 增强版，确保圆角保持
          */
         const animateGridReflow = (cardsToShow: Set<HTMLElement>, cardsToHide: Set<HTMLElement>): void => {
             // === FIRST: 记录所有卡片的初始位置 ===
@@ -99,10 +124,20 @@
                             const deltaX = firstPos.left - lastPos.left;
                             const deltaY = firstPos.top - lastPos.top;
 
+                            // 获取图片容器，确保它在动画期间保持圆角
+                            const imageContainer = card.querySelector('.image-container') as HTMLElement;
+                            if (imageContainer) {
+                                imageContainer.style.borderRadius = '20px';
+                                imageContainer.style.overflow = 'hidden';
+                                imageContainer.style.willChange = 'transform';
+                            }
+
                             // 应用反向变换（Invert）
                             card.style.transition = 'none';
                             card.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.9)`;
                             card.style.opacity = '0';
+                            // 关键：确保在动画期间保持溢出隐藏
+                            card.style.willChange = 'transform, opacity';
 
                             // 强制重排
                             card.offsetHeight;
@@ -121,6 +156,14 @@
                             card.style.transition = '';
                             card.style.transitionDelay = '';
                             card.style.transform = '';
+                            card.style.opacity = '';
+                            card.style.willChange = '';
+                            
+                            // 清理图片容器样式
+                            const imageContainer = card.querySelector('.image-container') as HTMLElement;
+                            if (imageContainer) {
+                                imageContainer.style.willChange = '';
+                            }
                         });
                     }, 400 + visibleCards.length * 30);
                 });
@@ -168,7 +211,7 @@
                 if (!messageEl) {
                     messageEl = document.createElement('div');
                     messageEl.id = 'no-results-message';
-                    messageEl.textContent = 'No results found 😢';
+                    messageEl.textContent = '未找到匹配的文章 😢';
                     messageEl.style.cssText = `
                         text-align: center;
                         padding: 3rem 1rem;
@@ -213,12 +256,30 @@
     const initializePage = (): void => {
         handleScrollBehavior();
         initSearch();
+        // 在初始化后立即修复样式
+        enforceCardStyles();
     };
 
     // 事件监听
     document.addEventListener('astro:before-preparation', saveScrollPosition);
-    document.addEventListener('astro:after-swap', initializePage);
-    window.addEventListener('pageshow', initializePage);
+    
+    // 关键：在页面切换后和视图过渡完成后都要修复样式
+    document.addEventListener('astro:after-swap', () => {
+        initializePage();
+    });
+    
+    document.addEventListener('astro:page-load', () => {
+        initializePage();
+    });
+
+    // 视图过渡完成后再次确保样式正确
+    document.addEventListener('astro:after-transition', () => {
+        enforceCardStyles();
+    });
+
+    window.addEventListener('pageshow', () => {
+        initializePage();
+    });
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializePage);
@@ -231,7 +292,8 @@
         (window as any).blogIndexUtils = {
             saveScrollPosition,
             handleScrollBehavior,
-            initSearch
+            initSearch,
+            enforceCardStyles
         };
     }
 </script>

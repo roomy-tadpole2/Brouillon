@@ -10,7 +10,6 @@
     .header-section {
         text-align: center;
         margin-bottom: 4rem;
-        /* 确保居中对齐 */
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -32,7 +31,6 @@
         position: relative;
         width: 600px;
         max-width: 100%;
-        /* 移除 margin: 0 auto，因为父元素已经用 flexbox 居中了 */
     }
 
     .search-box {
@@ -46,7 +44,6 @@
         transition: all 0.3s ease;
         outline: none;
         font-family: inherit;
-        /* 确保 box-sizing 正确 */
         box-sizing: border-box;
     }
 
@@ -97,9 +94,13 @@
         opacity: 1;
         transform: scale(1);
         transition: opacity 0.3s ease, transform 0.3s ease;
+        /* 确保动画期间保持圆角和性能优化 */
+        will-change: transform, opacity;
+        /* 关键：使用 contain 限制布局影响 */
+        contain: layout style paint;
     }
 
-    /* 隐藏状态：仍在 Grid 中但不可见，等动画完成后通过 JS 设置 display: none */
+    /* 隐藏状态 */
     .post-card.hidden {
         display: none;
         opacity: 0;
@@ -146,11 +147,17 @@
         position: relative;
         width: 100%;
         padding-bottom: 100%; /* 正方形 1:1 比例 */
-        overflow: hidden;
-        border-radius: 20px;
+        overflow: hidden !important; /* !important 确保在视图过渡时也保持 */
+        border-radius: 20px !important; /* !important 确保在视图过渡时也保持 */
         background: #f3f4f6;
         margin-bottom: 1rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* 关键修复：创建独立的层叠上下文 */
+        isolation: isolate;
+        /* 触发硬件加速 */
+        transform: translateZ(0);
+        /* 限制布局影响 */
+        contain: layout style paint;
     }
 
     .image-container img {
@@ -161,10 +168,12 @@
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
+        /* 确保图片不会溢出 */
+        border-radius: inherit;
     }
 
     .post-card:hover .image-container {
-        transform: translateY(-4px);
+        transform: translateY(-4px) translateZ(0);
         box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
     }
 
@@ -210,6 +219,26 @@
     /* ==================== No Results Message ==================== */
     #no-results-message {
         animation: fadeIn 0.4s ease forwards;
+    }
+
+    /* ==================== 视图过渡修复 ==================== */
+    /* 确保在视图过渡期间保持圆角 */
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        overflow: hidden;
+    }
+
+    /* 防止视图过渡影响图片容器的圆角 */
+    .image-container::before,
+    .image-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 20px;
+        pointer-events: none;
     }
 
     /* ==================== Responsive Design ==================== */
@@ -268,7 +297,7 @@
         }
 
         .image-container {
-            border-radius: 16px;
+            border-radius: 16px !important;
         }
 
         .card-title {
