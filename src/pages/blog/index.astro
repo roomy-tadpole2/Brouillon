@@ -7,15 +7,35 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import IndexStyles from './IndexStyle.astro';
 import IndexScripts from './IndexScripts.astro';
 
+import BlogPostScript from '../../layouts/BlogPostScript.astro';
+import BlogPostStyle from '../../layouts/BlogPostStyle.astro';
+
 const posts = (await getCollection('blog')).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+    <div class="back-link-container">
+        <a href="./" class="back-button" aria-label="Back to Blog">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="28" height="28">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
+            </svg>
+        </a>
+    </div>
+
+    <div class="up-link-container">
+        <button id="to-top-button" class="up-button" aria-label="Back to Top">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="28" height="28">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18"></path>
+            </svg>
+        </button>
+    </div>
+    <BlogPostStyle />
+    <BlogPostScript />
     <main>
         <section class="header-section">
-            <h1 class="tagline">text demo TEXT DEMO</h1>
+            <h1 class="tagline">Galerie</h1>
             <div class="search-container">
                 <input 
                     type="text" 
@@ -40,8 +60,10 @@ const posts = (await getCollection('blog')).sort(
                                 <div class="image-container">
                                     {post.data.heroImage && (
                                         <Image 
-                                            width={400} 
-                                            height={400} 
+                                            width={800} 
+                                            height={800} 
+                                            quality={100}
+                                            format="png"
                                             src={post.data.heroImage} 
                                             alt={post.data.title}
                                             transition:name={`hero-${post.id}`} 

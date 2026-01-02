@@ -1,0 +1,66 @@
+---
+// components/MarkdownRenderer.astro
+import { marked } from 'marked';
+
+interface Props {
+  mdPath: string;
+}
+
+const { mdPath } = Astro.props;
+
+// 读取 markdown 文件
+const mdFile = await import(`${mdPath}?raw`);
+const mdContent = mdFile.default;
+
+// 解析为 HTML
+const html = marked.parse(mdContent);
+---
+
+<div class="markdown-content">
+  <Fragment set:html={html} />
+</div>
+
+<style>
+  .markdown-content {
+    max-width: 100%;
+  }
+  
+  /* 代码块样式 */
+  .markdown-content pre {
+    background: #1e1e1e;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+  
+  .markdown-content code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+  }
+  
+  /* 表格样式 */
+  .markdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+  }
+  
+  .markdown-content th,
+  .markdown-content td {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+  }
+  
+  .markdown-content th {
+    background: #f5f5f5;
+    font-weight: 600;
+  }
+  
+  /* 图片样式 */
+  .markdown-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 1rem 0;
+  }
+</style>

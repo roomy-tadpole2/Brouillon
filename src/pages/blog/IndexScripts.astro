@@ -211,7 +211,7 @@
                 if (!messageEl) {
                     messageEl = document.createElement('div');
                     messageEl.id = 'no-results-message';
-                    messageEl.textContent = '未找到匹配的文章 😢';
+                    messageEl.textContent = 'No posts found.';
                     messageEl.style.cssText = `
                         text-align: center;
                         padding: 3rem 1rem;
@@ -233,10 +233,10 @@
         };
 
         // 绑定事件监听器
-        searchInput.addEventListener('input', debounce((e: Event) => {
-            const target = e.target as HTMLInputElement;
-            handleSearch(target.value);
-        }));
+        // searchInput.addEventListener('input', debounce((e: Event) => {
+        //     const target = e.target as HTMLInputElement;
+        //     handleSearch(target.value);
+        // }));
 
         // ESC 键清空搜索
         searchInput.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -245,6 +245,10 @@
                 handleSearch('');
                 searchInput.blur();
             }
+            if (e.key === 'Enter') {
+            const target = e.target as HTMLInputElement;
+            handleSearch(target.value);
+}
         });
 
         // 初始化

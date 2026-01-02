@@ -1,0 +1,29 @@
+---
+const { title = "click to unfold" } = Astro.props;
+---
+<details class="custom-details">
+  <summary>{title}</summary>
+  <section class="prose-wrapper">
+    <slot />
+  </section>
+</details>
+
+<style>
+  .custom-details {
+    /* 这里只写边框、背景等修饰性样式 */
+    border: 0px solid #eee;
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+
+  .prose-wrapper {
+    /* display: contents 会让这个容器不产生自己的布局，其子元素直接受外部 .prose 控制 */
+    display: contents; 
+  }
+
+  /* 如果你想在组件内部强制修复宽度，可以直接写死 */
+  .custom-details :global(.prose) {
+      width: 100% !important; /* 占据组件提供的全部宽度 */
+      max-width: none !important; /* 允许它伸展 */
+  }
+</style>

@@ -1,0 +1,49 @@
+---
+// src/components/BlogPostScript.astro
+import { Scroll_Trigger_Const } from '../consts';
+---
+
+<script define:vars={{ Scroll_Trigger_Const }}>
+    const setupEffects = () => {
+        // 1. 处理返回按钮逻辑
+        const backButton = document.querySelector('.back-button');
+        const heroImg = document.querySelector('.hero-image img');
+
+        if (backButton && heroImg) {
+                backButton.addEventListener('click', () => {
+                    const currentScroll = window.scrollY;
+                    
+                    if (currentScroll > 1800) {
+                        heroImg.style.viewTransitionName = 'none';
+                    } else {
+                        heroImg.style.viewTransitionName = ''; 
+                    }
+                });
+            }
+
+        // 2. 滚动显示/隐藏容器逻辑
+        const toTopBtn = document.getElementById('to-top-button');
+        const containers = document.querySelectorAll('.back-link-container, .up-link-container');
+
+        const toggleButtons = () => {
+            if (window.scrollY > Scroll_Trigger_Const) {
+                containers.forEach(el => el.classList.add('show'));
+            } else {
+                containers.forEach(el => el.classList.remove('show'));
+            }
+        };
+
+        toTopBtn?.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        window.addEventListener('scroll', toggleButtons);
+        toggleButtons();
+    };
+
+    document.addEventListener('astro:page-load', setupEffects);
+
+    document.addEventListener('astro:after-transition', () => {
+        document.documentElement.classList.remove('is-back-transition');
+    }, { once: true });
+</script>

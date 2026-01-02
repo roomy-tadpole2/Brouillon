@@ -4,8 +4,8 @@ import type { CollectionEntry } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
 import BaseLayout from './BaseLayout.astro';
 // 导入抽离的组件
-import BlogPostScript from '../components/BlogPostScript.astro';
-import BlogPostStyle from '../components/BlogPostStyle.astro';
+import BlogPostScript from './BlogPostScript.astro';
+import BlogPostStyle from './BlogPostStyle.astro';
 
 type Props = CollectionEntry<'blog'>['data'] & { id?: string };
 const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
@@ -36,8 +36,11 @@ const { id = Astro.params.slug } = Astro.props;
             <div class="hero-image">
                 {heroImage && (
                     <Image 
-                        width={1020} 
-                        height={510} 
+                        // width={heroImage.width} 
+                        width={2400} 
+                        // height={510}
+                        quality={100}
+                        format="png"
                         src={heroImage} 
                         alt="" 
                         transition:name={`hero-${id}`} 

@@ -5,8 +5,7 @@
  */
 
 :root {
-	--accent: #2337ff;
-	--accent-dark: #000d8a;
+	--accent: #ec1c1c7e;
 	--black: 15, 18, 25;
 	--gray: 96, 115, 159;
 	--gray-light: 229, 233, 240;
@@ -17,21 +16,14 @@
 		rgba(var(--gray), 33%);
 }
 @font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-regular.woff") format("woff");
+	font-family: "C-G";
+	src: url("/fonts/centurygothic.ttf") format("truetype");
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
 }
-@font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-bold.woff") format("woff");
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
-}
 body {
-	font-family: "Atkinson", sans-serif;
+	font-family: "C-G", sans-serif;
 	margin: 0;
 	padding: 0;
 	text-align: left;
@@ -44,7 +36,7 @@ body {
 	line-height: 1.7;
 }
 main {
-	width: 720px;
+	width: 1440px;
 	max-width: calc(100% - 2em);
 	margin: auto;
 	padding: 3em 1em;
@@ -152,4 +144,14 @@ hr {
 	clip-path: inset(50%);
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
+}
+/* 使用 !important 确保覆盖任何插件或 prose 的默认样式 */
+.expressive-code {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 如果你觉得代码块内部离边框太近，也可以顺便调整 padding */
+.expressive-code pre {
+    padding: 0.5rem;
 }

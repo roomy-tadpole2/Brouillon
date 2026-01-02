@@ -1,0 +1,108 @@
+<script>
+    /**
+     * Home Page Scripts
+     * 简约的页面初始化和交互处理 - 解决 View Transition 冲突
+     */
+
+    // ==================== 页面初始化 ====================
+    
+    const initializePage = (): void => {
+        // 确保页面加载时滚动到顶部
+        window.scrollTo({
+            top: 0,
+            behavior: 'instant' as ScrollBehavior
+        });
+
+        // 添加页面加载完成的类
+        document.body.classList.add('page-loaded');
+    };
+
+    // ==================== 卡片交互增强 ====================
+    
+    const enhanceCardInteractions = (): void => {
+        const cards = document.querySelectorAll('.home-card') as NodeListOf<HTMLElement>;
+        
+        cards.forEach(card => {
+            const link = card.querySelector('a');
+            
+            if (link) {
+                // 添加平滑的点击反馈
+                link.addEventListener('click', (e) => {
+                    card.style.transition = 'transform 0.2s ease';
+                    card.style.transform = 'scale(0.95)';
+                    
+                    setTimeout(() => {
+                        card.style.transform = '';
+                    }, 200);
+                });
+            }
+        });
+    };
+
+    // ==================== 视图过渡支持 - 关键修改 ====================
+    
+    const handleViewTransitions = (): void => {
+        // 在页面切换前保存状态
+        document.addEventListener('astro:before-preparation', () => {
+            sessionStorage.setItem('from-home', 'true');
+        });
+
+        // 监听 View Transition 完成
+        document.addEventListener('astro:after-swap', () => {
+            // View Transition 完成后，等待一小段时间再初始化
+            // 这样可以避免动画冲突
+            requestAnimationFrame(() => {
+                initializePage();
+                enhanceCardInteractions();
+            });
+        });
+        
+        // 新增: 确保 View Transition 完全结束后再播放卡片动画
+        document.addEventListener('astro:page-load', () => {
+            const cards = document.querySelectorAll('.home-card') as NodeListOf<HTMLElement>;
+            
+            // 重新触发动画 (如果需要)
+            cards.forEach(card => {
+                const computedStyle = window.getComputedStyle(card);
+                if (computedStyle.animationPlayState === 'paused') {
+                    // 强制重新开始动画
+                    card.style.animation = 'none';
+                    requestAnimationFrame(() => {
+                        card.style.animation = '';
+                    });
+                }
+            });
+        });
+    };
+
+    // ==================== 初始化流程 ====================
+    
+    const initialize = (): void => {
+        initializePage();
+        enhanceCardInteractions();
+        handleViewTransitions();
+    };
+
+    // ==================== 事件监听 ====================
+    
+    // Astro 视图过渡事件
+    document.addEventListener('astro:page-load', initialize);
+    
+    // 浏览器前进/后退
+    window.addEventListener('pageshow', initialize);
+
+    // DOM 加载完成
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+        initialize();
+    }
+
+    // 导出工具函数（可选）
+    if (typeof window !== 'undefined') {
+        (window as any).homePageUtils = {
+            initializePage,
+            enhanceCardInteractions
+        };
+    }
+</script>

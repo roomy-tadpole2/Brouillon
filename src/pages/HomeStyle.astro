@@ -1,0 +1,284 @@
+<style is:global>
+    /* ==================== Main Container ==================== */
+    main {
+        width: 1200px;
+        height: auto;
+        max-width: calc(100% - 2em);
+        margin: 0 auto;
+        padding: 2rem 0;
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ==================== Header Section ==================== */
+    .home-header {
+        text-align: center;
+        margin-top: 5%;
+        margin-bottom: 8%;
+        opacity: 0;
+        animation: fadeInTitle 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation-delay: 0.2s;
+    }
+
+    .home-title {
+        font-size: 5.2rem;
+        font-weight: 300;
+        margin: 0;
+        background: rgb(89, 79, 92);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.02em;
+    }
+
+    /* ==================== Cards Section ==================== */
+    .cards-section {
+        width: 100%;
+        height: 640px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .cards-container {
+        position: relative;
+        width: 800px;
+        max-width: 100%;
+        height: 400px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* ==================== Home Card ==================== */
+    .home-card {
+        position: absolute;
+        width: 360px;
+        height: 360px;
+        opacity: 0;
+        will-change: transform, opacity;
+        animation: fadeInCard 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* 等待 View Transition 完成后再开始动画 */
+    @media (prefers-reduced-motion: no-preference) {
+        html.astro-transitioning .home-card {
+            animation-play-state: paused;
+        }
+    }
+
+    .home-card:nth-child(1) {
+        animation-delay: 0.4s;
+        left: 10%;
+        top: 10%;
+        transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y));
+    }
+
+    .home-card:nth-child(2) {
+        animation-delay: 0.6s;
+        right: 10%;
+        top: 10%;
+        transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y));
+    }
+
+    .home-card:nth-child(3) {
+        animation-delay: 0.8s;
+        left: 10%;
+        bottom: 10%;
+        transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y));
+    }
+
+    .home-card:nth-child(4) {
+        animation-delay: 1s;
+        right: 10%;
+        bottom: 10%;
+        transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y));
+    }
+
+    .home-card:nth-child(5) {
+        animation-delay: 1.2s;
+        left: 50%;
+        top: 50%;
+        transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y));
+    }
+
+    .home-card:nth-child(6) {
+        animation-delay: 1.4s;
+        right: 50%;
+        top: 50%;
+        transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y));
+    }
+
+    .home-card:nth-child(7) {
+        animation-delay: 1.5s;
+        right: 50%;
+        top: 50%;
+        transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y));
+    }
+
+    .home-card:nth-child(8) {
+        animation-delay: 1.6s;
+        right: 50%;
+        top: 50%;
+        transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y));
+    }
+
+    .home-card:nth-child(9) {
+        animation-delay: 1.8s;
+        right: 50%;
+        top: 50%;
+        transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y));
+    }
+
+    .home-card a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .home-card a:hover {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+    }
+
+    .home-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .home-card a:hover img {
+        transform: scale(1.1);
+    }
+
+    /* ==================== Animations ==================== */
+    @keyframes fadeInTitle {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInCard {
+        from {
+            opacity: 0;
+            transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y)) scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: rotate(var(--rotation)) translate(var(--offset-x), var(--offset-y)) scale(1);
+        }
+    }
+
+    /* ==================== View Transition 优化 ==================== */
+    /* 缩短 View Transition 动画时长，减少与 CSS 动画的重叠 */
+    @media (prefers-reduced-motion: no-preference) {
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation-duration: 0.2s;
+        }
+        
+        /* 禁用图片的 View Transition，避免与卡片动画冲突 */
+        ::view-transition-group(home-card),
+        ::view-transition-old(home-card),
+        ::view-transition-new(home-card) {
+            animation: none;
+        }
+    }
+
+    /* ==================== Responsive Design ==================== */
+    @media (max-width: 1024px) {
+        .home-title {
+            font-size: 3rem;
+        }
+
+        .cards-container {
+            width: 600px;
+            height: 350px;
+        }
+
+        .home-card {
+            width: 160px;
+            height: 160px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        main {
+            padding: 1rem 0;
+        }
+
+        .home-header {
+            margin-bottom: 4rem;
+        }
+
+        .home-title {
+            font-size: 2.5rem;
+        }
+
+        .cards-container {
+            width: 100%;
+            height: 300px;
+        }
+
+        .home-card {
+            width: 140px;
+            height: 140px;
+        }
+
+        .home-card:nth-child(1) {
+            left: 5%;
+            top: 5%;
+        }
+
+        .home-card:nth-child(2) {
+            right: 5%;
+            top: 5%;
+        }
+
+        .home-card:nth-child(3) {
+            left: 5%;
+            bottom: 5%;
+        }
+
+        .home-card:nth-child(4) {
+            right: 5%;
+            bottom: 5%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .home-title {
+            font-size: 2rem;
+        }
+
+        .cards-container {
+            height: 280px;
+        }
+
+        .home-card {
+            width: 120px;
+            height: 120px;
+        }
+
+        .home-card a {
+            border-radius: 12px;
+        }
+    }
+</style>
