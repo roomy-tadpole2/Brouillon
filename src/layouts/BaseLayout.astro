@@ -127,20 +127,20 @@ const { title, description, transitionSpeed = "0.8s" } = Astro.props;
           circle.classList.add('decor-circle');
 
           // 1. 随机大小 (150px 到 450px 之间)
-          const size = Math.floor(Math.random() * 180) + 360;
+          const size = Math.floor(Math.random() * 120) + 240;
           
           // 2. 随机颜色
           const color = stain_colors.colors[Math.floor(Math.random() * stain_colors.colors.length)];
           
           // 3. 随机位置
           // y 轴在 0-100% 之间
-          const top = Math.floor(Math.random() * 80) + 20;
+          const top = Math.floor(Math.random() * 100) + 0;
           // x 轴限制在两侧
           let left;
           if (side === 'left') {
-            left = Math.floor(Math.random() * 18) - 16; // 允许稍微超出左边界
+            left = Math.floor(Math.random() * 18) - 12; // 允许稍微超出左边界
           } else {
-            left = Math.floor(Math.random() * 18) + 82; // 允许稍微超出右边界
+            left = Math.floor(Math.random() * 10) + 80; // 允许稍微超出右边界
           }
 
           // 应用样式
@@ -164,8 +164,8 @@ const { title, description, transitionSpeed = "0.8s" } = Astro.props;
         };
 
         // 每侧随机生成光晕
-        const countLeft = Math.floor(Math.random() * 2) + 2;
-        const countRight = Math.floor(Math.random() * 2) + 2;
+        const countLeft = Math.floor(Math.random() * 3) + 3;
+        const countRight = Math.floor(Math.random() * 3) + 3;
 
         for (let i = 0; i < countLeft; i++) createCircle('left', i, countLeft);
         for (let i = 0; i < countRight; i++) createCircle('right', i + countLeft, countLeft + countRight);

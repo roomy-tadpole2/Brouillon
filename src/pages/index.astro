@@ -53,6 +53,7 @@ const cardPositions = selectedPosts.map(() => ({
                                         format="png"
                                         src={post.data.heroImage} 
                                         alt={post.data.title}
+                                        transition:name={`hero-${post.id}`} 
                                     />
                                 )}
                             </a>

@@ -171,8 +171,14 @@
         };
 
         // 搜索处理函数
-        const handleSearch = (searchTerm: string): void => {
+        const handleSearch = (searchTerm: string, skipAnimation: boolean = false): void => {
             const term = searchTerm.toLowerCase().trim();
+
+            // 保存搜索词到 sessionStorage
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem('blog-search-term', searchTerm);
+            }
+
             const cardsToShow = new Set<HTMLElement>();
             const cardsToHide = new Set<HTMLElement>();
             let visibleCount = 0;
@@ -195,7 +201,19 @@
 
             // 执行平滑动画
             if (cardsToShow.size > 0 || cardsToHide.size > 0) {
-                animateGridReflow(cardsToShow, cardsToHide);
+                if (skipAnimation) {
+                    // 立即应用状态，不播放动画
+                    cardsToHide.forEach(card => {
+                        card.classList.add('hidden');
+                        card.setAttribute('aria-hidden', 'true');
+                    });
+                    cardsToShow.forEach(card => {
+                        card.classList.remove('hidden');
+                        card.setAttribute('aria-hidden', 'false');
+                    });
+                } else {
+                    animateGridReflow(cardsToShow, cardsToHide);
+                }
             }
 
             // 显示搜索结果提示
@@ -252,7 +270,13 @@
         });
 
         // 初始化
-        searchInput.value = '';
+        const savedSearchTerm = sessionStorage.getItem('blog-search-term');
+        if (savedSearchTerm) {
+            searchInput.value = savedSearchTerm;
+            handleSearch(savedSearchTerm, true);
+        } else {
+            searchInput.value = '';
+        }
     };
 
     // ==================== 初始化 ====================
@@ -263,6 +287,35 @@
         // 在初始化后立即修复样式
         enforceCardStyles();
     };
+    // 1. 离开前：移除当前页（Blog列表）图片的 transition-name
+    document.addEventListener('astro:before-preparation', (event: any) => {
+        const toUrl = new URL(event.to);
+        // 检查目标是否为首页
+        if (toUrl.pathname === '/' || toUrl.pathname === '/index.html') {
+            document.querySelectorAll('.post-card img').forEach((img) => {
+                if (img instanceof HTMLElement) {
+                    // 使用最重要的优先级
+                    img.style.setProperty('view-transition-name', 'none', 'important');
+                }
+            });
+        }
+    });
+
+    // 2. 交换前：移除即将渲染的页面（Home）图片的 transition-name
+    // 这确保了新旧页面都没有 name，从而不产生 morph 动画，只产生默认 fade
+    document.addEventListener('astro:before-swap', (event: any) => {
+         const newDoc = event.newDocument;
+         // 如果新页面包含 Home 页特有的元素
+         if (newDoc.querySelector('.home-title') || newDoc.querySelector('.home-card')) {
+             newDoc.querySelectorAll('img').forEach((img: HTMLElement) => {
+                 // 移除所有带有 hero- 前缀的 transition-name
+                 const style = img.getAttribute('style') || '';
+                 if (style.includes('view-transition-name') || img.hasAttribute('data-astro-transition-scope')) {
+                      img.style.setProperty('view-transition-name', 'none', 'important');
+                 }
+             });
+         }
+    });
 
     // 事件监听
     document.addEventListener('astro:before-preparation', saveScrollPosition);
@@ -300,4 +353,5 @@
             enforceCardStyles
         };
     }
+    
 </script>

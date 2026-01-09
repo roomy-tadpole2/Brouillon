@@ -61,7 +61,17 @@
         document.addEventListener('astro:page-load', () => {
             const cards = document.querySelectorAll('.home-card') as NodeListOf<HTMLElement>;
             
-            // 重新触发动画 (如果需要)
+            // 恢复被禁用的 view-transition-name
+            // 这样从 Home -> Blog Detail 时，图片又能拥有平滑的过渡动画了
+            cards.forEach(card => {
+                const img = card.querySelector('img');
+                // 检查是否有被强制设为 none 的样式
+                if (img && img.style.getPropertyValue('view-transition-name') === 'none') {
+                    img.style.removeProperty('view-transition-name');
+                }
+            });
+
+            // 2. 重新触发动画 (如果需要)
             cards.forEach(card => {
                 const computedStyle = window.getComputedStyle(card);
                 if (computedStyle.animationPlayState === 'paused') {

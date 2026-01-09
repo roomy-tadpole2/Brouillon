@@ -1,9 +1,10 @@
 ---
 // src/components/BlogPostScript.astro
 import { Scroll_Trigger_Const } from '../consts';
+import { Motion_Trigger_Const } from '../consts';
 ---
 
-<script define:vars={{ Scroll_Trigger_Const }}>
+<script define:vars={{ Scroll_Trigger_Const, Motion_Trigger_Const }}>
     const setupEffects = () => {
         // 1. 处理返回按钮逻辑
         const backButton = document.querySelector('.back-button');
@@ -13,7 +14,7 @@ import { Scroll_Trigger_Const } from '../consts';
                 backButton.addEventListener('click', () => {
                     const currentScroll = window.scrollY;
                     
-                    if (currentScroll > 1800) {
+                    if (currentScroll > Motion_Trigger_Const) {
                         heroImg.style.viewTransitionName = 'none';
                     } else {
                         heroImg.style.viewTransitionName = ''; 

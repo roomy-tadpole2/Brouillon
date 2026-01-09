@@ -53,8 +53,8 @@
     }
 
     /* 文章主体样式 */
-    .hero-image { width: 100%; }
     .hero-image img {
+        width: 68%;
         display: block;
         margin: 0 auto;
         border-radius: 12px;
@@ -67,13 +67,20 @@
         padding: 1em;
         color: rgb(var(--gray-dark));
     }
+    .prose img {
+        display: block;
+        margin: 0 auto;
+    }
     .title {
         margin-bottom: 1em;
         padding: 1em 0;
         text-align: center;
         line-height: 1;
     }
-    .title h1 { margin: 0 0 0.5em 0; }
+    .title h1 {
+        margin: 0 0 0.5em 0;
+        font-weight: 300;
+    }
     .date { margin-bottom: 0.5em; color: rgb(var(--gray)); }
     .last-updated-on { font-style: italic; }
 </style>
