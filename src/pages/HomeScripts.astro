@@ -85,6 +85,44 @@
         });
     };
 
+    // ==================== 随机化卡片 ====================
+    
+    const randomizeCards = (): void => {
+        const container = document.getElementById('cards-container');
+        if (!container) return;
+
+        const allCards = Array.from(container.querySelectorAll('.home-card')) as HTMLElement[];
+        if (allCards.length === 0) return;
+
+        // 1. 随机打乱所有候选卡片
+        const shuffled = allCards.sort(() => Math.random() - 0.5);
+        
+        // 2. 随机决定展示数量 (6-7个)
+        const count = 6 + Math.floor(Math.random() * 2);
+        const selected = shuffled.slice(0, count);
+
+        // 3. 清空现有显示，重新排列 DOM（为了让 CSS 的 nth-child 动画顺序生效）
+        container.innerHTML = '';
+        
+        selected.forEach((card) => {
+            // 4. 生成随机位置和旋转
+            const rotation = (Math.random() - 0.5) * 16;
+            const offsetX = (Math.random() - 0.5) * 1200;
+            const offsetY = (Math.random() - 0.5) * 120 - 80;
+
+            // 5. 应用 CSS 变量
+            card.style.setProperty('--rotation', `${rotation}deg`);
+            card.style.setProperty('--offset-x', `${offsetX}px`);
+            card.style.setProperty('--offset-y', `${offsetY}px`);
+            
+            // 6. 显示卡片
+            card.style.display = 'block';
+            card.style.visibility = 'visible';
+            
+            container.appendChild(card);
+        });
+    };
+
     // ==================== 初始化流程 ====================
     
     const initialize = (): void => {
@@ -96,7 +134,11 @@
     // ==================== 事件监听 ====================
     
     // Astro 视图过渡事件
-    document.addEventListener('astro:page-load', initialize);
+
+    document.addEventListener('astro:page-load', () => {
+        randomizeCards();
+        initialize();
+    });
     
     // 浏览器前进/后退
     window.addEventListener('pageshow', initialize);

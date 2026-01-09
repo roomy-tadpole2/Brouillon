@@ -1,0 +1,16 @@
+---
+title: '2026-1 GO enrichment heatmap'
+description: 'chart 05'
+pubDate: 'Jan 10 2026'
+heroImage: '../resource/chart05/up.png'
+---
+import ExpandableMD from '../../components/ExpandableMD.astro';
+import Jupyter_md from '../resource/chart05/upplot.md';
+
+A GO enrichment heatmap for upregulated genes. The heatmap is generated using seaborn's clustermap function, which provides a visual representation of the enrichment of GO terms across different groups. The color intensity in the heatmap corresponds to the -log10(p-value) of the enrichment, allowing for easy identification of significantly enriched GO terms.
+
+>This is an upregulated sets.
+
+<ExpandableMD title="click to view details">
+  <Jupyter_md />
+</ExpandableMD>

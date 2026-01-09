@@ -6,27 +6,8 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import HomeStyles from './HomeStyle.astro';
 import HomeScripts from './HomeScripts.astro';
 
-// 获取所有博客文章
+// 获取所有有封面图的博客文章作为候选池
 const allPosts = (await getCollection('blog')).filter(post => post.data.heroImage);
-
-// 随机打乱数组的函数
-function shuffleArray<T>(array: T[]): T[] {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-}
-
-// 随机选取文章
-const selectedPosts = shuffleArray(allPosts).slice(0, 6 + Math.floor(Math.random() * 2));
-
-const cardPositions = selectedPosts.map(() => ({
-    rotation: (Math.random() - 0.5) * 16,
-    offsetX: (Math.random() - 0.5) * 1200,
-    offsetY: (Math.random() - 0.5) * 120 - 80,
-}));
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
@@ -36,13 +17,13 @@ const cardPositions = selectedPosts.map(() => ({
         </section>
 
         <section class="cards-section">
-            <div class="cards-container">
+            <div class="cards-container" id="cards-container">
                 {
-                    selectedPosts.map((post, index) => (
+                    allPosts.map((post) => (
                         <div 
                             class="home-card" 
-                            data-index={index}
-                            style={`--rotation: ${cardPositions[index].rotation}deg; --offset-x: ${cardPositions[index].offsetX}px; --offset-y: ${cardPositions[index].offsetY}px;`}
+                            style="display: none; visibility: hidden;" 
+                            data-post-id={post.id}
                         >
                             <a href={`/blog/${post.id}/`}>
                                 {post.data.heroImage && (
