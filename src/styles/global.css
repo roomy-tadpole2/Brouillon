@@ -146,13 +146,19 @@ hr {
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
 }
-/* 使用 !important 确保覆盖任何插件或 prose 的默认样式 */
+table.dataframe tbody tr th {
+    vertical-align: top !important;
+}
+
+table.dataframe thead th {
+    text-align: right !important;
+}
+
 .expressive-code {
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
-/* 如果你觉得代码块内部离边框太近，也可以顺便调整 padding */
 .expressive-code pre {
     padding: 0.5rem;
 }
