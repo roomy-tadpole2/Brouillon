@@ -183,14 +183,14 @@
 
     // ==================== 窗口调整时重新随机化 ====================
     
-    let resizeTimeout: number;
-    const handleResize = (): void => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = window.setTimeout(() => {
-            // 窗口大小改变时重新计算卡片位置
-            randomizeCards();
-        }, 300);
-    };
+    // let resizeTimeout: number;
+    // const handleResize = (): void => {
+    //     clearTimeout(resizeTimeout);
+    //     resizeTimeout = window.setTimeout(() => {
+    //         // 窗口大小改变时重新计算卡片位置
+    //         randomizeCards();
+    //     }, 300);
+    // };
 
     // ==================== 初始化流程 ====================
     
@@ -212,7 +212,7 @@
     window.addEventListener('pageshow', initialize);
 
     // 窗口大小改变
-    window.addEventListener('resize', handleResize);
+    // window.addEventListener('resize', handleResize);
 
     // DOM 加载完成
     if (document.readyState === 'loading') {
