@@ -1,4 +1,5 @@
 <style is:global>
+    /* ==================== 返回和回顶按钮 ==================== */
     .back-link-container {
         position: fixed;
         left: 50%; 
@@ -48,11 +49,14 @@
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     }
 
-    @media (max-width: 1200px) {
-        .back-link-container, .up-link-container { left: 1rem; margin-left: 0; }
+    .back-button svg, .up-button svg {
+        width: 28px;
+        height: 28px;
     }
 
-    /* 文章主体样式 */
+    /* ==================== 文章主体样式 ==================== */
+    
+    /* Hero 图片 */
     .hero-image img {
         width: 68%;
         display: block;
@@ -60,6 +64,8 @@
         border-radius: 12px;
         box-shadow: var(--box-shadow);
     }
+
+    /* Prose 容器 */
     .prose {
         width: 65%;
         max-width: 1440px;
@@ -67,20 +73,348 @@
         padding: 1em;
         color: rgb(var(--gray-dark));
     }
+
     .prose img {
         display: block;
         margin: 0 auto;
+        max-width: 100%;
+        height: auto;
     }
+
+    /* 标题区域 */
     .title {
         margin-bottom: 1em;
         padding: 1em 0;
         text-align: center;
         line-height: 1;
     }
+
     .title h1 {
         margin: 0 0 0.5em 0;
         font-weight: 300;
+        font-size: 2.5rem;
     }
-    .date { margin-bottom: 0.5em; color: rgb(var(--gray)); }
-    .last-updated-on { font-style: italic; }
+
+    .date {
+        margin-bottom: 0.5em;
+        color: rgb(var(--gray));
+        font-size: 1rem;
+    }
+
+    .last-updated-on {
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    /* ==================== 响应式设计 ==================== */
+
+    /* 大平板和小桌面 (1025px - 1200px) */
+    @media (max-width: 1200px) {
+        .back-link-container, .up-link-container {
+            left: 1rem;
+            margin-left: 0;
+        }
+
+        .hero-image img {
+            width: 75%;
+        }
+
+        .prose {
+            width: 75%;
+        }
+    }
+
+    /* 平板 (769px - 1024px) */
+    @media (max-width: 1024px) {
+        .back-link-container {
+            top: 12rem;
+        }
+
+        .up-link-container {
+            top: 7.5rem;
+        }
+
+        .back-button, .up-button {
+            width: 48px;
+            height: 48px;
+        }
+
+        .back-button svg, .up-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .hero-image img {
+            width: 85%;
+        }
+
+        .prose {
+            width: 85%;
+        }
+
+        .title h1 {
+            font-size: 2.2rem;
+        }
+    }
+
+    /* 小平板 (481px - 768px) */
+    @media (max-width: 768px) {
+        .back-link-container {
+            top: 10rem;
+            left: 0.75rem;
+        }
+
+        .up-link-container {
+            top: 6rem;
+            left: 0.75rem;
+        }
+
+        .back-button, .up-button {
+            width: 44px;
+            height: 44px;
+        }
+
+        .back-button svg, .up-button svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .hero-image img {
+            width: 90%;
+            border-radius: 8px;
+        }
+
+        .prose {
+            width: 90%;
+            padding: 0.75em;
+        }
+
+        .title {
+            padding: 0.75em 0;
+        }
+
+        .title h1 {
+            font-size: 1.9rem;
+            margin-bottom: 0.4em;
+        }
+
+        .date {
+            font-size: 0.95rem;
+        }
+
+        .last-updated-on {
+            font-size: 0.85rem;
+        }
+    }
+
+    /* 手机 (最大 480px) */
+    @media (max-width: 480px) {
+        .back-link-container {
+            top: 8.5rem;
+            left: 0.5rem;
+        }
+
+        .up-link-container {
+            top: 5rem;
+            left: 0.5rem;
+        }
+
+        .back-button, .up-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .back-button svg, .up-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .hero-image img {
+            width: 90%;
+            border-radius: 8px;
+        }
+
+        .prose {
+            width: 90%;
+            padding: 0.5em;
+            font-size: 0.95rem;
+        }
+
+        .title {
+            padding: 0.5em 0;
+            margin-bottom: 0.75em;
+        }
+
+        .title h1 {
+            font-size: 1.6rem;
+            line-height: 1.2;
+        }
+
+        .date {
+            font-size: 0.9rem;
+            margin-bottom: 0.4em;
+        }
+
+        .last-updated-on {
+            font-size: 0.8rem;
+        }
+
+        /* 简化悬停效果 */
+        .back-button:hover, .up-button:hover {
+            transform: translateY(-1px);
+        }
+    }
+
+    /* 超小屏幕 (最大 360px) */
+    @media (max-width: 360px) {
+        .back-link-container {
+            top: 7.5rem;
+        }
+
+        .up-link-container {
+            top: 4.5rem;
+        }
+
+        .back-button, .up-button {
+            width: 36px;
+            height: 36px;
+        }
+
+        .back-button svg, .up-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .title h1 {
+            font-size: 1.4rem;
+        }
+
+        .prose {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* ==================== Prose 内容样式响应式优化 ==================== */
+    
+    /* 平板及以下设备 */
+    @media (max-width: 1024px) {
+        .prose h2 {
+            font-size: 1.75rem;
+        }
+
+        .prose h3 {
+            font-size: 1.4rem;
+        }
+
+        .prose h4 {
+            font-size: 1.2rem;
+        }
+
+        .prose p {
+            line-height: 1.7;
+        }
+    }
+
+    /* 手机设备 */
+    @media (max-width: 480px) {
+        .prose h2 {
+            font-size: 1.5rem;
+        }
+
+        .prose h3 {
+            font-size: 1.25rem;
+        }
+
+        .prose h4 {
+            font-size: 1.1rem;
+        }
+
+        .prose p {
+            line-height: 1.65;
+        }
+
+        .prose ul, .prose ol {
+            padding-left: 1.5em;
+        }
+
+        .prose code {
+            font-size: 0.85em;
+        }
+
+        .prose pre {
+            font-size: 0.85em;
+            padding: 0.75em;
+            border-radius: 6px;
+        }
+
+        .prose blockquote {
+            padding: 0.75em 1em;
+            font-size: 0.95em;
+        }
+    }
+
+    /* ==================== 触摸设备优化 ==================== */
+    
+    @media (hover: none) and (pointer: coarse) {
+        /* 增大触摸目标 */
+        .back-button, .up-button {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        /* 禁用悬停效果 */
+        .back-button:hover, .up-button:hover {
+            transform: none;
+        }
+
+        /* 添加点击反馈 */
+        .back-button:active, .up-button:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+    }
+
+    /* ==================== 性能优化 ==================== */
+    
+    /* 减少移动设备上的动画 */
+    @media (max-width: 768px) {
+        .back-link-container,
+        .up-link-container {
+            transition: opacity 1s; /* 缩短过渡时间 */
+        }
+    }
+
+    /* 为低性能设备优化 */
+    @media (prefers-reduced-motion: reduce) {
+        .back-button, .up-button {
+            transition: none;
+        }
+
+        .back-button:hover, .up-button:hover {
+            transform: none;
+        }
+    }
+    :root {
+        --code-font-size: 1rem;
+    }
+
+    @media (max-width: 1024px) {
+        :root {
+            --code-font-size: 0.85rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        :root {
+            --code-font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        :root {
+            --code-font-size: 0.5rem;
+        }
+    }
 </style>
+

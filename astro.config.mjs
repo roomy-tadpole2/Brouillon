@@ -25,7 +25,7 @@ export default defineConfig({
 
             styleOverrides: {
                 borderRadius: '4px',
-                codeFontSize: '1.0rem',
+                codeFontSize: 'var(--code-font-size, 1rem)',  // 使用 CSS 变量
             }
         }),
         mdx(),

@@ -162,3 +162,40 @@ table.dataframe thead th {
 .expressive-code pre {
     padding: 0.5rem;
 }
+
+.expressive-code {
+	font-size: 2rem; /* 或者你想要的桌面端大小 */
+}
+
+/* 平板 (1024px 以下) */
+@media (max-width: 1024px) {
+	.expressive-code {
+		font-size: 0.9rem;
+	}
+}
+
+/* 小平板 (768px 以下) */
+@media (max-width: 768px) {
+	.expressive-code {
+		font-size: 0.85rem;
+	}
+}
+
+/* 手机 (480px 以下) */
+@media (max-width: 480px) {
+	.expressive-code {
+		font-size: 0.8rem;
+	}
+	
+	/* 也可以调整代码块的内边距 */
+	.expressive-code pre {
+		padding: 0.75em 0.5em;
+	}
+}
+
+/* 超小屏幕 (360px 以下) */
+@media (max-width: 360px) {
+	.expressive-code {
+		font-size: 0.75rem;
+	}
+}

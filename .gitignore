@@ -3,10 +3,10 @@ dist/
 # generated types
 .astro/
 .vscode
+.cmd
 
 # dependencies
 node_modules/
-content/
 
 # logs
 npm-debug.log*

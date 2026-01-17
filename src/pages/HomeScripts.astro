@@ -85,6 +85,47 @@
         });
     };
 
+    // ==================== 响应式随机位置计算 ====================
+    
+    /**
+     * 根据屏幕尺寸计算合适的随机偏移范围
+     */
+    const getResponsiveOffsetRanges = () => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const container = document.getElementById('cards-container');
+        const containerWidth = container ? container.offsetWidth : width * 0.8;
+        
+        // 根据屏幕宽度调整偏移范围
+        let maxOffsetX: number;
+        let maxOffsetY: number;
+        let rotationRange: number;
+        
+        if (width <= 480) {
+            // 手机端：X 轴小偏移，Y 轴大范围分布（利用竖屏空间）
+            maxOffsetX = containerWidth * 0.45; // 容器宽度的 20%
+            maxOffsetY = height * 0.35; // 视口高度的 35%，让卡片在竖屏上分散
+            rotationRange = 12; // ±6度
+        } else if (width <= 768) {
+            // 小平板端：X 轴适中偏移，Y 轴较大范围
+            maxOffsetX = containerWidth * 0.45; // 容器宽度的 25%
+            maxOffsetY = height * 0.25; // 视口高度的 25%
+            rotationRange = 16; // ±8度
+        } else if (width <= 1024) {
+            // 大平板/小桌面：恢复正常比例
+            maxOffsetX = containerWidth * 0.65; // 容器宽度的 35%
+            maxOffsetY = 80;
+            rotationRange = 20; // ±10度
+        } else {
+            // 大桌面：最大偏移
+            maxOffsetX = containerWidth * 0.75; // 容器宽度的 45%
+            maxOffsetY = 100;
+            rotationRange = 24; // ±12度
+        }
+        
+        return { maxOffsetX, maxOffsetY, rotationRange };
+    };
+
     // ==================== 随机化卡片 ====================
     
     const randomizeCards = (): void => {
@@ -97,30 +138,58 @@
         // 1. 随机打乱所有候选卡片
         const shuffled = allCards.sort(() => Math.random() - 0.5);
         
-        // 2. 随机决定展示数量 (6-7个)
-        const count = 6 + Math.floor(Math.random() * 2);
+        // 2. 根据屏幕大小决定展示数量
+        const width = window.innerWidth;
+        let count: number;
+        
+        if (width <= 480) {
+            // 手机端：4-5张卡片
+            count = 8 + Math.floor(Math.random() * 2);
+        } else if (width <= 768) {
+            // 平板端：5-6张卡片
+            count = 8 + Math.floor(Math.random() * 2);
+        } else {
+            // 桌面端：6-7张卡片
+            count = 6 + Math.floor(Math.random() * 2);
+        }
+        
         const selected = shuffled.slice(0, count);
 
         // 3. 清空现有显示，重新排列 DOM（为了让 CSS 的 nth-child 动画顺序生效）
         container.innerHTML = '';
         
+        // 4. 获取响应式偏移范围
+        const { maxOffsetX, maxOffsetY, rotationRange } = getResponsiveOffsetRanges();
+        
         selected.forEach((card) => {
-            // 4. 生成随机位置和旋转
-            const rotation = (Math.random() - 0.5) * 16;
-            const offsetX = (Math.random() - 0.5) * 1200;
-            const offsetY = (Math.random() - 0.5) * 120 - 80;
+            // 5. 生成响应式的随机位置和旋转
+            // 使用百分比而非固定像素，确保在所有设备上都适配
+            const rotation = (Math.random() - 0.5) * rotationRange;
+            const offsetX = (Math.random() - 0.5) * maxOffsetX * 2;
+            const offsetY = (Math.random() - 0.5) * maxOffsetY * 2;
 
-            // 5. 应用 CSS 变量
+            // 6. 应用 CSS 变量
             card.style.setProperty('--rotation', `${rotation}deg`);
             card.style.setProperty('--offset-x', `${offsetX}px`);
             card.style.setProperty('--offset-y', `${offsetY}px`);
             
-            // 6. 显示卡片
+            // 7. 显示卡片
             card.style.display = 'block';
             card.style.visibility = 'visible';
             
             container.appendChild(card);
         });
+    };
+
+    // ==================== 窗口调整时重新随机化 ====================
+    
+    let resizeTimeout: number;
+    const handleResize = (): void => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = window.setTimeout(() => {
+            // 窗口大小改变时重新计算卡片位置
+            randomizeCards();
+        }, 300);
     };
 
     // ==================== 初始化流程 ====================
@@ -134,7 +203,6 @@
     // ==================== 事件监听 ====================
     
     // Astro 视图过渡事件
-
     document.addEventListener('astro:page-load', () => {
         randomizeCards();
         initialize();
@@ -143,10 +211,17 @@
     // 浏览器前进/后退
     window.addEventListener('pageshow', initialize);
 
+    // 窗口大小改变
+    window.addEventListener('resize', handleResize);
+
     // DOM 加载完成
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize);
+        document.addEventListener('DOMContentLoaded', () => {
+            randomizeCards();
+            initialize();
+        });
     } else {
+        randomizeCards();
         initialize();
     }
 
@@ -154,7 +229,8 @@
     if (typeof window !== 'undefined') {
         (window as any).homePageUtils = {
             initializePage,
-            enhanceCardInteractions
+            enhanceCardInteractions,
+            randomizeCards
         };
     }
 </script>

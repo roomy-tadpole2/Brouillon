@@ -104,6 +104,66 @@ const { title, description, transitionSpeed = "0.8s" } = Astro.props;
         opacity: 1;
         transform: none;
       }
+
+      /* ==================== 响应式优化 ==================== */
+      
+      /* 手机和平板：优化动画性能 */
+      @media (max-width: 1024px) {
+        /* 简化动画，减少移动设备性能消耗 */
+        body > header,
+        body > main,
+        body > footer {
+          animation-duration: 0.5s;
+          animation-delay: 0.3s;
+        }
+
+        /* 减少模糊效果以提升性能 */
+        .decor-circle {
+          filter: blur(50px);
+        }
+      }
+
+      /* 平板：减少光晕模糊度 */
+      @media (max-width: 768px) and (min-width: 481px) {
+        .decor-circle {
+          filter: blur(40px);
+        }
+      }
+
+      /* 手机：完全禁用背景装饰以优化性能 */
+      @media (max-width: 480px) {
+        .bg-decor {
+          display: none;
+        }
+
+        /* 进一步简化动画 */
+        body > header,
+        body > main,
+        body > footer {
+          animation-duration: 0.4s;
+          animation-delay: 0.2s;
+        }
+      }
+
+      /* 确保主内容区域在各设备上都有适当的间距 */
+      body > main {
+        padding-left: 1em;
+        padding-right: 1em;
+      }
+
+      @media (max-width: 768px) {
+        body > main {
+          padding-left: 0.75em;
+          padding-right: 0.75em;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body > main {
+          padding-left: 0.5em;
+          padding-right: 0.5em;
+        }
+      }
     </style>
   </head>
 
@@ -119,15 +179,27 @@ const { title, description, transitionSpeed = "0.8s" } = Astro.props;
         const container = document.getElementById('bg-decor');
         if (!container) return;
         
+        // 检测设备类型 - 手机和平板不生成光晕
+        const isMobile = window.innerWidth <= 480;
+        const isTablet = window.innerWidth > 480 && window.innerWidth <= 1500;
+        
         // 清空现有光晕（用于页面切换时重新生成）
         container.innerHTML = '';
+
+        // 手机端：完全不生成光晕
+        if (isMobile) {
+          return;
+        }
 
         const createCircle = (side, index, total) => {
           const circle = document.createElement('div');
           circle.classList.add('decor-circle');
 
-          // 1. 随机大小 (150px 到 450px 之间)
-          const size = Math.floor(Math.random() * 120) + 240;
+          // 1. 随机大小
+          // 平板设备使用较小的光晕
+          const minSize = isTablet ? 180 : 240;
+          const maxSize = isTablet ? 320 : 450;
+          const size = Math.floor(Math.random() * (maxSize - minSize)) + minSize;
           
           // 2. 随机颜色
           const color = stain_colors.colors[Math.floor(Math.random() * stain_colors.colors.length)];
@@ -163,9 +235,18 @@ const { title, description, transitionSpeed = "0.8s" } = Astro.props;
           });
         };
 
-        // 每侧随机生成光晕
-        const countLeft = Math.floor(Math.random() * 3) + 3;
-        const countRight = Math.floor(Math.random() * 3) + 3;
+        // 根据设备类型调整光晕数量
+        let countLeft, countRight;
+        
+        if (isTablet) {
+          // 平板：不生成光晕
+          countLeft = 0;
+          countRight = 0;
+        } else {
+          // 桌面：正常生成
+          countLeft = Math.floor(Math.random() * 3) + 3;
+          countRight = Math.floor(Math.random() * 3) + 3;
+        }
 
         for (let i = 0; i < countLeft; i++) createCircle('left', i, countLeft);
         for (let i = 0; i < countRight; i++) createCircle('right', i + countLeft, countLeft + countRight);
@@ -199,6 +280,15 @@ const { title, description, transitionSpeed = "0.8s" } = Astro.props;
         if (event.persisted) {
           initialize();
         }
+      });
+
+      // 窗口大小改变时重新生成（适配设备旋转等情况）
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          generateDecor();
+        }, 300);
       });
     </script>
   </body>

@@ -1,5 +1,4 @@
 ---
-import { SITE_TITLE } from '../consts';
 import HeaderLink from './HeaderLink.astro';
 ---
 
@@ -40,71 +39,211 @@ import HeaderLink from './HeaderLink.astro';
 	h2 {
 		margin: 0;
 		font-size: 1em;
+		/* 防止标题在小屏幕上被压缩 */
+		flex-shrink: 0;
+		/* 确保与其他元素垂直对齐 */
+		display: flex;
+		align-items: center;
 	}
 
 	h2 a,
 	h2 a.active {
 		text-decoration: none;
+		/* 移除默认的行高影响 */
+		line-height: 1;
 	}
+	
 	nav {
-        display: flex;
-        align-items: center;
-        /* 修改点 1：使用相对定位，为内部绝对定位提供参考 */
-        position: relative; 
-        justify-content: space-between;
-        height: 64px; /* 建议给 nav 一个固定高度，方便垂直居中 */
-    }
+		display: flex;
+		align-items: center;
+		position: relative;
+		justify-content: space-between;
+		height: 64px;
+		/* 在小屏幕上允许换行 */
+		flex-wrap: wrap;
+	}
 
-    /* 修改点 2：让中间链接部分绝对居中 */
-    .internal-links {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 1em; /* 链接之间的间距 */
-    }
+	/* 桌面端：中间链接绝对居中 */
+	.internal-links {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		align-items: center;
+		gap: 1em;
+		/* 防止与左右元素重叠 */
+		pointer-events: auto;
+		/* 确保与 nav 同高，垂直居中 */
+		height: 100%;
+	}
+	
 	nav a {
-		padding: 1em 0.5em;
+		padding: 0 0.5em;
 		color: var(--black);
-		border-bottom: 4px solid transparent;
 		text-decoration: none;
+		/* 让链接内容垂直居中 */
+		display: inline-flex;
+		align-items: center;
+		height: 100%;
+		/* 使用相对定位，为伪元素提供定位上下文 */
+		position: relative;
 	}
-	nav a.active {
-		text-decoration: none;
-		border-bottom-color: var(--accent);
+	
+	/* 使用伪元素创建下划线 */
+	nav a::after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0.5em;
+		right: 0.5em;
+		height: 4px;
+		background: transparent;
+		transition: background-color 0.3s ease;
 	}
+	
+	nav a.active::after {
+		background-color: var(--accent);
+	}
+	
 	.social-links,
 	.social-links a {
 		display: flex;
 	}
-	@media (max-width: 720px) {
+	
+	.social-links {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 1.2rem;
+		/* 移除固定的 margin-right,让 flexbox 自然布局 */
+		margin-left: auto;
+		flex-shrink: 0;
+	}
+
+	.social-links a {
+		text-decoration: none;
+		color: rgb(var(--gray));
+		transition: all 0.3s ease;
+		/* 确保可点击区域 */
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	.social-links svg {
+		width: 36px;
+		height: 36px;
+		filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+	}
+
+	.social-links a:hover {
+		color: var(--accent);
+		transform: translateY(-3px);
+	}
+
+	/* 平板适配 (721px - 1024px) */
+	@media (max-width: 1024px) {
+		/* 减小图标尺寸 */
+		.social-links svg {
+			width: 32px;
+			height: 32px;
+		}
+		.social-links {
+			display: none;
+		}
+		
+		/* 减小导航链接间距 */
+		.internal-links {
+			gap: 0.6em;
+		}
+		
+		nav a {
+			padding: 0 0.3em;
+		}
+		
+	}
+
+	/* 小平板适配 (481px - 720px) */
+	@media (max-width: 720px) and (min-width: 481px) {
+		nav {
+			/* 增加内边距,给元素更多空间 */
+			padding: 0 0.5em;
+		}
+		
+		/* 调整标题字体大小 */
+		h2 {
+			font-size: 0.9em;
+		}
+		
+		/* 导航链接改为相对定位,避免重叠 */
+		.internal-links {
+			position: static;
+			transform: none;
+			gap: 0.5em;
+			flex: 1;
+			justify-content: center;
+			/* 限制最大宽度,避免过度拉伸 */
+			max-width: 50%;
+		}
+		/* 导航链接居中*/
+		
+		nav a {
+			padding: 0 0.2em;
+			font-size: 0.9em;
+		}
+		
 		.social-links {
 			display: none;
 		}
 	}
-	.social-links {
-        display: flex;
-        justify-content: center;
-        gap: 1.2rem; /* 增加一点呼吸感 */
-        /* margin-top: 0.8rem;  */
-        margin-right: 5rem; 
-    }
 
-    .social-links a {
-        text-decoration: none;
-        color: rgb(var(--gray));
-        /* 添加过渡效果让交互更丝滑 */
-        transition: all 0.3s ease;
-    }
-	.social-links svg {
-        width: 36px;
-        height: 36px;
-        /* 给图标一点微弱的阴影，增加立体感 */
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-    }
+	/* 手机适配 (最大 480px) */
+	@media (max-width: 480px) {
+		header {
+			padding: 0 0.5em;
+		}
+		
+		nav {
+			height: auto;
+			min-height: 64px;
+			/* 居中对齐 */
+			justify-content: center;
+		}
+		
+		/* 隐藏标题 */
+		h2 {
+			display: none;
+		}
+		
+		/* 隐藏社交链接 */
+		.social-links {
+			display: none;
+		}
+		
+		/* 导航链接居中显示 */
+		.internal-links {
+			position: static;
+			transform: none;
+			justify-content: center;
+			gap: 1.2em;
+			height: auto;
+		}
+		
+		nav a {
+			padding: 0 0.6em;
+			font-size: 1em;
+		}
+	}
 
-    .social-links a:hover {
-        color: var(--accent);
-        transform: translateY(-3px); /* 悬停时图标微动 */
+	/* 超小屏幕适配 (最大 360px) */
+	@media (max-width: 360px) {
+		.internal-links {
+			gap: 0.8em;
+		}
+		
+		nav a {
+			padding: 0 0.4em;
+			font-size: 0.9em;
+		}
 	}
 </style>

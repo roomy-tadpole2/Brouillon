@@ -47,4 +47,34 @@ const allPosts = (await getCollection('blog')).filter(post => post.data.heroImag
 
     <HomeStyles />
     <HomeScripts />
+    
+    <!-- 移动设备自动跳转脚本 -->
+    <script>
+        /**
+         * 检测移动设备/平板并自动跳转到 /blog
+         */
+        (function() {
+            // 检测屏幕宽度（1024px 及以下视为移动设备/平板）
+            const isMobileOrTablet = window.innerWidth <= 1024;
+            
+            if (isMobileOrTablet) {
+                // 检查是否正在跳转（防止无限循环）
+                const isRedirecting = sessionStorage.getItem('home-redirecting');
+                
+                if (!isRedirecting) {
+                    // 标记正在跳转
+                    sessionStorage.setItem('home-redirecting', 'true');
+                    
+                    // 跳转到 /blog
+                    window.location.href = '/blog';
+                }
+            } else {
+                // 桌面设备：清除跳转标记（允许用户返回查看）
+                const fromBlog = document.referrer.includes('/blog');
+                if (fromBlog) {
+                    sessionStorage.removeItem('home-redirecting');
+                }
+            }
+        })();
+    </script>
 </BaseLayout>
